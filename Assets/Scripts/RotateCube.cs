@@ -14,6 +14,7 @@ public class RotateCube : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (PauseMenu.isPaused) return;
         Swipe();
         Drag();
     }

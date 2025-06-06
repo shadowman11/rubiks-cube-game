@@ -30,6 +30,8 @@ public class PivotRotation : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (PauseMenu.isPaused) return;
+
         if (dragging && !autoRotating)
         {
             SpinSide(activeSide);
