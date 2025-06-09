@@ -65,7 +65,7 @@ public class ReadCube : MonoBehaviour
         cubeMap.Set();
     }
 
-    void SetRayTransforms()
+    public void SetRayTransforms()
     {
         upRays = BuildRays(tUp, new Vector3(90, 90, 0));
         downRays = BuildRays(tDown, new Vector3(270, 270, 0));
