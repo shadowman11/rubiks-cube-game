@@ -1,94 +1,101 @@
-using UnityEngine;
+// Scrambler.cs
+// -------------
+// Simplified scramble using manual face-pivot animation (no PivotRotation)
+// Only rotates Up, Front, Right faces one at a time, smoothly over duration.
+
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class Scrambler : MonoBehaviour
 {
-    [Header("Scramble Settings")]
-    [Tooltip("Number of random face turns")]
-    public int scrambleMoves = 20;
-    [Tooltip("Seconds to wait for each 90° turn to finish")]
-    public float moveDelay = 0.6f;
+    [Tooltip("Number of moves to scramble")] public int scrambleMoves = 20;
+    [Tooltip("Duration in seconds of each face turn")] public float turnDuration = 1.0f;
+    [Tooltip("Delay after each turn before next move")] public float delayBetweenMoves = 0.2f;
 
     private CubeState cubeState;
     private ReadCube readCube;
     private GameTimer gameTimer;
-    private bool timerStopped = false;
-
-    void Awake()
-    {
-        cubeState = FindObjectOfType<CubeState>();
-        readCube  = FindObjectOfType<ReadCube>();
-        gameTimer = FindObjectOfType<GameTimer>();
-    }
 
     void Start()
     {
-        // only auto-scramble in timed mode
+        cubeState = Object.FindAnyObjectByType<CubeState>();
+        readCube  = Object.FindAnyObjectByType<ReadCube>();
+        gameTimer = Object.FindAnyObjectByType<GameTimer>();
+
+        // Prime cube state
+        readCube.ReadState();
+
         if (ModeIndicator.isTimed)
-            StartCoroutine(ScrambleAndStartTimer());
+            StartCoroutine(ScrambleRoutine());
     }
 
-    private IEnumerator ScrambleAndStartTimer()
+    private IEnumerator ScrambleRoutine()
     {
-        // let the cube & rays fully initialize
-        yield return new WaitForSeconds(0.2f);
-
-        // seed the ray-based state so faces[4] is valid
-        readCube.ReadState();
-        yield return null;
-
-        // cache the three pivots the player can turn
-        var pivots = new List<Transform>
+        var faces = new List<System.Func<(List<GameObject> face, Vector3 axis)>>
         {
-            cubeState.up[4].transform.parent,
-            cubeState.front[4].transform.parent,
-            cubeState.right[4].transform.parent
+            // Up face: axis = pivot.up
+            () =>
+            {
+                var face = cubeState.up;
+                var axis = face[4].transform.parent.up;
+                return (face, axis);
+            },
+            // Front face: axis = pivot.forward
+            () =>
+            {
+                var face = cubeState.front;
+                var axis = face[4].transform.parent.forward;
+                return (face, axis);
+            },
+            // Right face: axis = pivot.right
+            () =>
+            {
+                var face = cubeState.right;
+                var axis = face[4].transform.parent.right;
+                return (face, axis);
+            }
         };
 
         for (int i = 0; i < scrambleMoves; i++)
         {
-            // pick one pivot at random
-            var pivot = pivots[Random.Range(0, pivots.Count)];
+            // pick random move
+            var entry = faces[Random.Range(0, faces.Count)]();
+            var face = entry.face;
+            var axis = entry.axis;
+            float angle  = (Random.value > 0.5f) ? 90f : -90f;
 
-            // rotate its face 90° around the face-normal
-            pivot.Rotate(pivot.forward, 90f, Space.World);
+            // animate the face turn
+            yield return StartCoroutine(AnimateFaceTurn(face, axis, angle, turnDuration));
 
-            // wait for it to visibly finish
-            yield return new WaitForSeconds(moveDelay);
-
-            // rebuild cubeState lists via raycasts
-            readCube.ReadState();
+            // small delay
+            yield return new WaitForSeconds(delayBetweenMoves);
         }
 
-        // now start the timer
+        // start timer when done
         gameTimer.StartTimer();
     }
 
-    void Update()
+    private IEnumerator AnimateFaceTurn(List<GameObject> face, Vector3 axis, float angle, float duration)
     {
-        // stop the timer exactly once when solved
-        if (ModeIndicator.isTimed && !timerStopped && IsSolved())
+        // Pickup: reparent face cubes under pivot
+        cubeState.Pickup(face);
+        Transform pivot = face[4].transform.parent;
+
+        Quaternion startRot = pivot.rotation;
+        Quaternion endRot   = pivot.rotation * Quaternion.AngleAxis(angle, axis);
+
+        float time = 0f;
+        while (time < duration)
         {
-            gameTimer.StopTimer();
-            timerStopped = true;
+            pivot.rotation = Quaternion.Slerp(startRot, endRot, time / duration);
+            time += Time.deltaTime;
+            yield return null;
         }
-    }
+        pivot.rotation = endRot;
 
-    private bool IsSolved()
-    {
-        return CheckFace(cubeState.up)
-            && CheckFace(cubeState.front)
-            && CheckFace(cubeState.right);
-    }
-
-    private bool CheckFace(List<GameObject> face)
-    {
-        if (face == null || face.Count < 9) return false;
-        char first = face[4].name[0];
-        foreach (var cube in face)
-            if (cube.name[0] != first)
-                return false;
-        return true;
+        // PutDown: reparent back
+        cubeState.PutDown(face, pivot.parent);
+        readCube.ReadState();
     }
 }
