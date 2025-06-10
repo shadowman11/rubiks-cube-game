@@ -1,108 +1,101 @@
+// Scrambler.cs
+// -------------
+// Simplified scramble using manual face-pivot animation (no PivotRotation)
+// Only rotates Up, Front, Right faces one at a time, smoothly over duration.
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// RubiksCubeScrambler: applies a series of valid random face turns to shuffle the cube in a solvable state.
-public class Scrambler : MonoBehaviour {
-    [Tooltip("Degrees per second for face rotation animation.")]
-    public float rotationSpeed = 200f;  // Speed of individual face rotations
+public class Scrambler : MonoBehaviour
+{
+    [Tooltip("Number of moves to scramble")] public int scrambleMoves = 20;
+    [Tooltip("Duration in seconds of each face turn")] public float turnDuration = 1.0f;
+    [Tooltip("Delay after each turn before next move")] public float delayBetweenMoves = 0.2f;
 
-    [Header("Face Pivots")]
-    public Transform upFacePivot;       // Transform pivot for the Up face
-    public Transform downFacePivot;     // Transform pivot for the Down face
-    public Transform leftFacePivot;     // Transform pivot for the Left face
-    public Transform rightFacePivot;    // Transform pivot for the Right face
-    public Transform frontFacePivot;    // Transform pivot for the Front face
-    public Transform backFacePivot;     // Transform pivot for the Back face
+    private CubeState cubeState;
+    private ReadCube readCube;
+    private GameTimer gameTimer;
 
-    [Header("Scramble Settings")]
-    [Tooltip("Number of random moves for scrambling.")]
-    public int scrambleMoves = 20;      // How many turns in the scramble sequence
-    [Tooltip("Delay between scramble moves in seconds.")]
-    public float scrambleDelay = 0.1f;  // Pause between turns for clarity
+    void Start()
+    {
+        cubeState = Object.FindAnyObjectByType<CubeState>();
+        readCube  = Object.FindAnyObjectByType<ReadCube>();
+        gameTimer = Object.FindAnyObjectByType<GameTimer>();
 
-    // Enum listing each face to rotate
-    private enum FaceName { Up, Down, Left, Right, Front, Back }
+        // Prime cube state
+        readCube.ReadState();
 
-    // Mappings from face names to their pivot transforms and axes
-    private Dictionary<FaceName, Transform> facePivots;
-    private Dictionary<FaceName, Vector3> faceAxes;
-    private bool isRotating = false;    // Prevent overlapping rotations
+        if (ModeIndicator.isTimed)
+            StartCoroutine(ScrambleRoutine());
+    }
 
-    void Awake() {
-        // Initialize pivot lookup for rotations
-        facePivots = new Dictionary<FaceName, Transform> {
-            { FaceName.Up, upFacePivot },
-            { FaceName.Down, downFacePivot },
-            { FaceName.Left, leftFacePivot },
-            { FaceName.Right, rightFacePivot },
-            { FaceName.Front, frontFacePivot },
-            { FaceName.Back, backFacePivot }
+    private IEnumerator ScrambleRoutine()
+    {
+        var faces = new List<System.Func<(List<GameObject> face, Vector3 axis)>>
+        {
+            // Up face: axis = pivot.up
+            () =>
+            {
+                var face = cubeState.up;
+                var axis = face[4].transform.parent.up;
+                return (face, axis);
+            },
+            // Front face: axis = pivot.forward
+            () =>
+            {
+                var face = cubeState.front;
+                var axis = face[4].transform.parent.forward;
+                return (face, axis);
+            },
+            // Right face: axis = pivot.right
+            () =>
+            {
+                var face = cubeState.right;
+                var axis = face[4].transform.parent.right;
+                return (face, axis);
+            }
         };
 
-        // Define local axis for each face rotation
-        faceAxes = new Dictionary<FaceName, Vector3> {
-            { FaceName.Up, Vector3.up },
-            { FaceName.Down, Vector3.up },
-            { FaceName.Left, Vector3.right },
-            { FaceName.Right, Vector3.right },
-            { FaceName.Front, Vector3.forward },
-            { FaceName.Back, Vector3.forward }
-        };
-    }
+        for (int i = 0; i < scrambleMoves; i++)
+        {
+            // pick random move
+            var entry = faces[Random.Range(0, faces.Count)]();
+            var face = entry.face;
+            var axis = entry.axis;
+            float angle  = (Random.value > 0.5f) ? 90f : -90f;
 
-    // Public entry point: starts the scramble process.
-    public void Scramble() {
-        if (!isRotating) {
-            // Begin coroutine that runs multiple random face turns
-            StartCoroutine(ScrambleCoroutine(scrambleMoves));
-        }
-    }
+            // animate the face turn
+            yield return StartCoroutine(AnimateFaceTurn(face, axis, angle, turnDuration));
 
-    // Coroutine: performs a sequence of random, valid 90° turns.
-    private IEnumerator ScrambleCoroutine(int moves) {
-        isRotating = true;  // Lock out other commands during scramble
-
-        // Get array of all faces to choose from
-        FaceName[] faces = (FaceName[]) System.Enum.GetValues(typeof(FaceName));
-
-        for (int i = 0; i < moves; i++) {
-            // Pick a random face
-            FaceName face = faces[Random.Range(0, faces.Length)];
-            // Choose clockwise or counter-clockwise 90°
-            float angle = Random.value > 0.5f ? 90f : -90f;
-
-            // Execute the single turn and wait for completion
-            yield return StartCoroutine(RotateFaceCoroutine(face, angle));
-
-            // Optional delay between moves for visual clarity
-            if (scrambleDelay > 0f) {
-                yield return new WaitForSeconds(scrambleDelay);
-            }
+            // small delay
+            yield return new WaitForSeconds(delayBetweenMoves);
         }
 
-        isRotating = false; // Unlock when done
+        // start timer when done
+        gameTimer.StartTimer();
     }
 
-    // Coroutine: rotates a given face by the specified angle smoothly.
-    private IEnumerator RotateFaceCoroutine(FaceName face, float angle) {
-        Transform pivot = facePivots[face];          // Find pivot for this face
-        Vector3 axis = faceAxes[face];               // Determine local rotation axis
-        float rotated = 0f;                          // Track accumulated rotation
+    private IEnumerator AnimateFaceTurn(List<GameObject> face, Vector3 axis, float angle, float duration)
+    {
+        // Pickup: reparent face cubes under pivot
+        cubeState.Pickup(face);
+        Transform pivot = face[4].transform.parent;
 
-        // Continue rotating in small steps until target reached
-        while (Mathf.Abs(rotated) < Mathf.Abs(angle)) {
-            // Calculate step for this frame
-            float step = rotationSpeed * Time.deltaTime * Mathf.Sign(angle);
-            // Clamp final step to not overshoot
-            if (Mathf.Abs(rotated + step) > Mathf.Abs(angle)) {
-                step = angle - rotated;
-            }
+        Quaternion startRot = pivot.rotation;
+        Quaternion endRot   = pivot.rotation * Quaternion.AngleAxis(angle, axis);
 
-            // Apply rotation around pivot's local axis
-            pivot.Rotate(axis, step, Space.Self);
-            rotated += step;
-            yield return null;  // Wait next frame
+        float time = 0f;
+        while (time < duration)
+        {
+            pivot.rotation = Quaternion.Slerp(startRot, endRot, time / duration);
+            time += Time.deltaTime;
+            yield return null;
         }
+        pivot.rotation = endRot;
+
+        // PutDown: reparent back
+        cubeState.PutDown(face, pivot.parent);
+        readCube.ReadState();
     }
 }
