@@ -15,6 +15,7 @@ public class RotateCube : MonoBehaviour
     void Update()
     {
         if (PauseMenu.isPaused) return;
+        if (WinMenu.hasWon) return;
         Swipe();
         Drag();
     }

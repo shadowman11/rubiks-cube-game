@@ -31,6 +31,7 @@ public class PivotRotation : MonoBehaviour
     void Update()
     {
         if (PauseMenu.isPaused) return;
+        if (WinMenu.hasWon) return;
 
         if (dragging && !autoRotating)
         {

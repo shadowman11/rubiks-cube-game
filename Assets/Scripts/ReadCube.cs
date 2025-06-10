@@ -52,6 +52,7 @@ public class ReadCube : MonoBehaviour
     public void ReadState()
     {
         if (PauseMenu.isPaused) return;
+        if (WinMenu.hasWon) return;
         cubeState = FindAnyObjectByType<CubeState>();
         cubeMap = FindAnyObjectByType<CubeMap>();
 
