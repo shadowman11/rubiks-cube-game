@@ -12,6 +12,11 @@ public class GameTimer : MonoBehaviour
 
     void Update()
     {
+        if (PauseMenu.isPaused)
+        {
+            timerText.text = "";
+            return;
+        }
         if (!running) return;
 
         float t = Time.time - startTime;

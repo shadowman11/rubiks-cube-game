@@ -10,7 +10,7 @@ using UnityEngine;
 public class Scrambler : MonoBehaviour
 {
     [Tooltip("Number of moves to scramble")] public int scrambleMoves = 20;
-    [Tooltip("Duration in seconds of each face turn")] public float turnDuration = 1.0f;
+    [Tooltip("Duration in seconds of each face turn")] public float turnDuration = 1f;
     [Tooltip("Delay after each turn before next move")] public float delayBetweenMoves = 0.2f;
 
     private CubeState cubeState;
@@ -27,7 +27,9 @@ public class Scrambler : MonoBehaviour
         readCube.ReadState();
 
         if (ModeIndicator.isTimed)
+        {
             StartCoroutine(ScrambleRoutine());
+        }
     }
 
     private IEnumerator ScrambleRoutine()
@@ -53,6 +55,27 @@ public class Scrambler : MonoBehaviour
             {
                 var face = cubeState.right;
                 var axis = face[4].transform.parent.right;
+                return (face, axis);
+            },
+            // Left face: axis = pivot.right
+            () =>
+            {
+                var face = cubeState.left;
+                var axis = face[4].transform.parent.right;
+                return (face, axis);
+            },
+            // Down face: axis = pivot.up
+            () =>
+            {
+                var face = cubeState.down;
+                var axis = face[4].transform.parent.up;
+                return (face, axis);
+            },
+            // Back face: axis = pivot.forward
+            () =>
+            {
+                var face = cubeState.back;
+                var axis = face[4].transform.parent.forward;
                 return (face, axis);
             }
         };
