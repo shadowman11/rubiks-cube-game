@@ -16,7 +16,7 @@ public class Automate : MonoBehaviour
     private ReadCube readCube;
     private GameTimer gameTimer;
     public GameObject timerUI;
-    public bool hasStarted = false;
+    public GameObject scrambleButton;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -24,12 +24,13 @@ public class Automate : MonoBehaviour
         cubeState = FindAnyObjectByType<CubeState>();
         readCube = FindAnyObjectByType<ReadCube>();
         gameTimer = FindAnyObjectByType<GameTimer>();
-        Shuffle();
         if (ModeIndicator.isTimed)
-            gameTimer.StartTimer();
+        {
+            Shuffle();
+            scrambleButton.SetActive(false);
+        }
         else
             timerUI.SetActive(false);
-        
     }
 
     // Update is called once per frame
@@ -40,6 +41,8 @@ public class Automate : MonoBehaviour
             DoMove(moveList[0]);
 
             moveList.Remove(moveList[0]);
+
+            if (moveList.Count == 0) gameTimer.StartTimer();
         }
     }
 

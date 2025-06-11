@@ -10,6 +10,7 @@ public class PivotRotation : MonoBehaviour
     private Vector3 localForward;
     private Vector3 mouseRef;
     private bool dragging = false;
+    public static bool moving { get; private set; }
     public bool autoRotating = false;
     private float sensitivity = 0.4f;
     private float speed = 300f;
@@ -23,6 +24,7 @@ public class PivotRotation : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        moving = false;
         cubeState = FindAnyObjectByType<CubeState>();
         readCube = FindAnyObjectByType<ReadCube>();
     }
@@ -38,6 +40,7 @@ public class PivotRotation : MonoBehaviour
             SpinSide(activeSide);
             if (Input.GetMouseButtonUp(0))
             {
+                moving = false;
                 dragging = false;
                 RotateToRightAngle();
             }
@@ -85,9 +88,12 @@ public class PivotRotation : MonoBehaviour
 
     public void Rotate(List<GameObject> side)
     {
+        if (PauseMenu.isPaused) return; 
+
         activeSide = side;
         mouseRef = Input.mousePosition;
         dragging = true;
+        moving = true;
 
         localForward = Vector3.zero - side[4].transform.parent.transform.localPosition;
     }
@@ -114,6 +120,7 @@ public class PivotRotation : MonoBehaviour
     private void AutoRotate()
     {
         dragging = false;
+        moving = false;
         var step = speed * Time.deltaTime;
         transform.localRotation = Quaternion.RotateTowards(transform.localRotation, targetQuaternion, step);
 
@@ -129,6 +136,7 @@ public class PivotRotation : MonoBehaviour
 
             autoRotating = false;
             dragging = false;
+            moving = false;
         }
 
     }

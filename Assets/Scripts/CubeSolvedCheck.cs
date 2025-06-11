@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,15 +13,15 @@ public class CubeSolvedCheck : MonoBehaviour
     private List<Vector3> startLocalPositions = new List<Vector3>();
     private List<Quaternion> startLocalRotations = new List<Quaternion>();
 
-    public float checkDelay = 2f; // seconds to wait before checking
-    private float timer = 0f;
     public float positionTolerance = 0.001f;
     public float rotationTolerance = 0.1f;
+    public bool firstMove;
 
     private bool winTriggered = false;
 
     void Start()
     {
+        firstMove = false;
         gameTimer = FindAnyObjectByType<GameTimer>();
 
         foreach (Transform cubie in cubies)
@@ -28,16 +29,17 @@ public class CubeSolvedCheck : MonoBehaviour
             startLocalPositions.Add(cubie.localPosition);
             startLocalRotations.Add(cubie.localRotation);
         }
+<<<<<<< HEAD
 
         timer = checkDelay;
+=======
+>>>>>>> 05917176b493b3af60500d3353b4d32917db7d2b
     }
 
     void Update()
     {
-        timer -= Time.deltaTime;
-        if (!winTriggered && IsCubeSolved() && timer <= 0f)
+        if (!winTriggered && IsCubeSolved() && firstMove)
         {
-            Debug.Log("🎉 Cube is solved!");
             winTriggered = true;
             WinMenu.hasWon = true;
             gameTimer.StopTimer();
@@ -46,13 +48,26 @@ public class CubeSolvedCheck : MonoBehaviour
 
     bool IsCubeSolved()
     {
+        if (PivotRotation.moving) return false;
+
         for (int i = 0; i < cubies.Count; i++)
         {
+<<<<<<< HEAD
             if (Vector3.Distance(cubies[i].localPosition, startLocalPositions[i]) > positionTolerance)
                 return false;
 
             if (Quaternion.Angle(cubies[i].localRotation, startLocalRotations[i]) > rotationTolerance)
+=======
+            if (Quaternion.Angle(cubies[i].rotation, startRotations[i]) > rotationTolerance)
+            {
+                firstMove = true;
+>>>>>>> 05917176b493b3af60500d3353b4d32917db7d2b
                 return false;
+            }
+            if (Vector3.Distance(cubies[i].position, startPositions[i]) > positionTolerance)
+            {
+                return false;
+            }
         }
 
         return true;
