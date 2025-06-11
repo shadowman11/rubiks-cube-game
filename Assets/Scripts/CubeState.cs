@@ -28,6 +28,8 @@ public class CubeState : MonoBehaviour
 
     public void Pickup(List<GameObject> cubeSide)
     {
+        if (PauseMenu.isPaused) return;
+        if (WinMenu.hasWon) return;
         foreach (GameObject face in cubeSide)
         {
             if (face != cubeSide[4])
@@ -40,6 +42,8 @@ public class CubeState : MonoBehaviour
 
     public void PutDown(List<GameObject> littleCubes, Transform pivot)
     {
+        if (PauseMenu.isPaused) return;
+        if (WinMenu.hasWon) return;
         foreach (GameObject littleCube in littleCubes)
         {
             if (littleCube != littleCubes[4])

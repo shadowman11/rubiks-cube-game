@@ -26,7 +26,18 @@ public class ReadCube : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        SetRayTransforms();
+        // get mode of game
+        if (ModeIndicator.isTimed)
+        {
+            // scramble cube
+            // start timer (or give player a few seconds to look at the cube before starting timer)
+        } else
+        {
+            // don't scramble cube
+            // no timer
+        }
+
+            SetRayTransforms();
 
         cubeState = FindAnyObjectByType<CubeState>();
         cubeMap = FindAnyObjectByType<CubeMap>();
@@ -43,6 +54,8 @@ public class ReadCube : MonoBehaviour
 
     public void ReadState()
     {
+        if (PauseMenu.isPaused) return;
+        if (WinMenu.hasWon) return;
         cubeState = FindAnyObjectByType<CubeState>();
         cubeMap = FindAnyObjectByType<CubeMap>();
 
@@ -56,7 +69,7 @@ public class ReadCube : MonoBehaviour
         cubeMap.Set();
     }
 
-    void SetRayTransforms()
+    public void SetRayTransforms()
     {
         upRays = BuildRays(tUp, new Vector3(90, 90, 0));
         downRays = BuildRays(tDown, new Vector3(270, 270, 0));

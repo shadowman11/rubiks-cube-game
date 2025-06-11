@@ -10,7 +10,7 @@ public class PivotRotation : MonoBehaviour
     private Vector3 localForward;
     private Vector3 mouseRef;
     private bool dragging = false;
-    private bool autoRotating = false;
+    public bool autoRotating = false;
     private float sensitivity = 0.4f;
     private float speed = 300f;
     private Vector3 rotation;
@@ -30,6 +30,9 @@ public class PivotRotation : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (PauseMenu.isPaused) return;
+        if (WinMenu.hasWon) return;
+
         if (dragging && !autoRotating)
         {
             SpinSide(activeSide);

@@ -14,10 +14,13 @@ public class RotateCube : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (PauseMenu.isPaused) return;
+        if (WinMenu.hasWon) return;
         Swipe();
         Drag();
     }
 
+    // Cube view rotation
     void Drag()
     {
         if (Input.GetMouseButton(1))
@@ -37,6 +40,7 @@ public class RotateCube : MonoBehaviour
         previousMousePosition = Input.mousePosition;
     }
 
+    // Face rotation
     void Swipe()
     {
         if (Input.GetMouseButtonDown(1))
