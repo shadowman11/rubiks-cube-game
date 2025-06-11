@@ -27,16 +27,47 @@ public class CubeMap : MonoBehaviour
 
     }
 
+    List<GameObject> FlipFace(List<GameObject> face, bool flipHorizontally)
+    {
+        List<GameObject> flipped = new List<GameObject>(9);
+
+        if (flipHorizontally)
+        {
+            // Horizontal flip: reverse each row
+            for (int row = 0; row < 3; row++)
+            {
+                flipped.Add(face[row * 3 + 2]);
+                flipped.Add(face[row * 3 + 1]);
+                flipped.Add(face[row * 3 + 0]);
+            }
+        }
+        else
+        {
+            // Vertical flip: reverse row order
+            for (int row = 2; row >= 0; row--)
+            {
+                flipped.Add(face[row * 3 + 0]);
+                flipped.Add(face[row * 3 + 1]);
+                flipped.Add(face[row * 3 + 2]);
+            }
+        }
+
+        return flipped;
+    }
+
     public void Set()
     {
         cubeState = FindAnyObjectByType<CubeState>();
 
-        UpdateMap(cubeState.front, front);
-        UpdateMap(cubeState.back, back);
-        UpdateMap(cubeState.left, left);
-        UpdateMap(cubeState.right, right);
-        UpdateMap(cubeState.up, up);
-        UpdateMap(cubeState.down, down);
+        // Horizontal flip (left/right mirrored)
+        UpdateMap(FlipFace(cubeState.front, false), front);
+        UpdateMap(FlipFace(cubeState.up, false), up);
+        UpdateMap(FlipFace(cubeState.down, false), down);
+
+        // Vertical flip (top/bottom mirrored)
+        UpdateMap(FlipFace(cubeState.left, true), left);
+        UpdateMap(FlipFace(cubeState.right, true), right);
+        UpdateMap(FlipFace(cubeState.back, true), back);
     }
 
     void UpdateMap(List<GameObject> face, Transform side)

@@ -59,8 +59,8 @@ public class ReadCube : MonoBehaviour
         downRays = BuildRays(tDown, new Vector3(270, 270, 0));
         leftRays = BuildRays(tLeft, new Vector3(0, 90, 90));
         rightRays = BuildRays(tRight, new Vector3(0, -90, 90));
-        frontRays = BuildRays(tFront, new Vector3(0, 0, 0));
-        backRays = BuildRays(tBack, new Vector3(0, 180, 0));
+        frontRays = BuildRays(tFront, new Vector3(0, 0, -90));
+        backRays = BuildRays(tBack, new Vector3(0, 180, 90));
     }
 
     List<GameObject> BuildRays(Transform rayTransform, Vector3 direction)
