@@ -12,7 +12,6 @@ public class WinMenu : MonoBehaviour
     {
         winMenu.SetActive(false);
         hasWon = false;
-        
     }
 
     // Update is called once per frame
@@ -22,6 +21,10 @@ public class WinMenu : MonoBehaviour
         // read cube state
         // if in original state
         // hasWon = true
+        if (hasWon)
+        {
+            winMenu.SetActive(true);
+        }
     }
 
     public void MainMenu()

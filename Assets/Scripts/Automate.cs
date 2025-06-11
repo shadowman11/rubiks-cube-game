@@ -14,12 +14,14 @@ public class Automate : MonoBehaviour
         };
     private CubeState cubeState;
     private ReadCube readCube;
+    public bool hasStarted = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         cubeState = FindAnyObjectByType<CubeState>();
         readCube = FindAnyObjectByType<ReadCube>();
+        Shuffle();
     }
 
     // Update is called once per frame

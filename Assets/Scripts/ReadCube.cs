@@ -18,6 +18,8 @@ public class ReadCube : MonoBehaviour
     private List<GameObject> upRays = new List<GameObject>();
     private List<GameObject> downRays = new List<GameObject>();
 
+    private List<List<Color>> originalState;
+
     private int layerMask = 1 << 8; // layerMask of the Cube
     CubeState cubeState;
     CubeMap cubeMap;
