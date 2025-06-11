@@ -30,6 +30,9 @@ public class ReadCube : MonoBehaviour
 
         cubeState = FindAnyObjectByType<CubeState>();
         cubeMap = FindAnyObjectByType<CubeMap>();
+
+        ReadState();
+        CubeState.started = true;
     }
 
     // Update is called once per frame
