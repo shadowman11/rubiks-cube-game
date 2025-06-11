@@ -46,7 +46,7 @@ public class Automate : MonoBehaviour
     public void Shuffle()
     {
         List<string> moves = new List<string>();
-        int shuffleLength = Random.Range(15, 25);
+        int shuffleLength = Random.Range(1, 2);
         for (int i = 0; i < shuffleLength; i++)
         {
             int randomMove = Random.Range(0, allMoves.Count);
