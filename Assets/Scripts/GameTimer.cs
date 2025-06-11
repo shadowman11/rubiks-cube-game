@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEditor.Rendering;
 
 public class GameTimer : MonoBehaviour
 {
@@ -35,5 +36,10 @@ public class GameTimer : MonoBehaviour
     public void StopTimer()
     {
         running = false;
+    }
+
+    public void ResetTimer()
+    {
+        startTime = Time.time;
     }
 }

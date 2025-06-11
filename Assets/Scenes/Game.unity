@@ -413,6 +413,7 @@ GameObject:
   - component: {fileID: 82236840}
   - component: {fileID: 82236841}
   - component: {fileID: 82236842}
+  - component: {fileID: 82236843}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -592,6 +593,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   winMenu: {fileID: 1234067646}
+--- !u!114 &82236843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 82236834}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 792a93cf446e142dbb014efdb5e761ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timerText: {fileID: 1102929918}
 --- !u!1 &98911181
 GameObject:
   m_ObjectHideFlags: 0
@@ -933,7 +947,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 156236052}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 82236843}
+        m_TargetAssemblyTypeName: GameTimer, Assembly-CSharp
+        m_MethodName: ResetTimer
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &156236052
 MonoBehaviour:
   m_ObjectHideFlags: 0

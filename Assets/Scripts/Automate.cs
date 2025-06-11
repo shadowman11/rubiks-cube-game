@@ -14,6 +14,7 @@ public class Automate : MonoBehaviour
         };
     private CubeState cubeState;
     private ReadCube readCube;
+    private GameTimer gameTimer;
     public bool hasStarted = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -21,7 +22,9 @@ public class Automate : MonoBehaviour
     {
         cubeState = FindAnyObjectByType<CubeState>();
         readCube = FindAnyObjectByType<ReadCube>();
+        gameTimer = FindAnyObjectByType<GameTimer>();
         Shuffle();
+        gameTimer.StartTimer();
     }
 
     // Update is called once per frame

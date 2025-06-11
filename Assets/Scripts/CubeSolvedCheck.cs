@@ -4,6 +4,8 @@ using UnityEngine.SceneManagement;
 
 public class CubeSolvedCheck : MonoBehaviour
 {
+    private GameTimer gameTimer;
+
     public List<Transform> cubies = new List<Transform>();
 
     private List<Vector3> startPositions = new List<Vector3>();
@@ -18,6 +20,7 @@ public class CubeSolvedCheck : MonoBehaviour
 
     void Start()
     {
+        gameTimer = FindAnyObjectByType<GameTimer>();
         foreach (Transform cubie in cubies)
         {
             startPositions.Add(cubie.position);
@@ -34,6 +37,7 @@ public class CubeSolvedCheck : MonoBehaviour
             Debug.Log("🎉 Cube is solved!");
             winTriggered = true;
             WinMenu.hasWon = true;
+            gameTimer.StopTimer();
         }
     }
 
