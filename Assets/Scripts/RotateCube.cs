@@ -20,7 +20,6 @@ public class RotateCube : MonoBehaviour
         Drag();
     }
 
-    // Cube view rotation
     void Drag()
     {
         if (Input.GetMouseButton(1))
@@ -40,13 +39,11 @@ public class RotateCube : MonoBehaviour
         previousMousePosition = Input.mousePosition;
     }
 
-    // Face rotation
     void Swipe()
     {
         if (Input.GetMouseButtonDown(1))
         {
             firstPressPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-            //print(firstPressPos);
         }
         if (Input.GetMouseButtonUp(1))
         {
